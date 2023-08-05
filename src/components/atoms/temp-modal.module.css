@@ -1,0 +1,12 @@
+.modal {
+  padding: var(--ye-spacing-rem-normal);
+  overflow: hidden;
+  background: var(--ye-color-white);
+  border: none;
+  border-radius: var(--ye-radius-normal);
+
+  &::backdrop {
+    background-color: rgb(25 25 25 / 0.8);
+    backdrop-filter: blur(12px);
+  }
+}

@@ -14,7 +14,6 @@ import { ReactNode, useCallback } from "react";
 
 import usePropOrState from "../../hooks/usePropOrState.js";
 import styles from "./modal.module.css";
-
 export interface ModalProps {
   children: ReactNode;
   className?: string;
