@@ -87,23 +87,11 @@ export class WoFetchBase {
   devProxy?: string;
   endpoint: string;
   errorHandler = defaultErrorHandler;
-  responseHandler = jsonResponseHandler;
-  tokenName = ACCESS_TOKEN_KEY;
-  trailingSlash?: boolean;
-
-  constructor({
-    endpoint,
-    ...options
-  }: SetRequired<Partial<WoFetchBase>, "endpoint">) {
-    this.endpoint = endpoint;
-    Object.assign(this, options);
-  }
-
-  async fetchURL<TResponseData>(
+  fetchURL = async <TResponseData>(
     method: string,
     path: string,
     options: FetchOptions = {},
-  ): Promise<TResponseData> {
+  ): Promise<TResponseData> => {
     const {
       credentials,
       data,
@@ -114,6 +102,7 @@ export class WoFetchBase {
       query = {},
       requireAuth,
       responseHandler = this.responseHandler,
+      signal,
       token,
       trailingSlash = this.trailingSlash,
     } = options;
@@ -144,25 +133,15 @@ export class WoFetchBase {
         credentials,
         headers: Object.fromEntries(requestHeaders),
         method,
+        signal,
       });
       return responseHandler<TResponseData>(response, errorHandler);
     } catch (error) {
       await errorHandler(undefined, error);
     }
     return new Response() as TResponseData;
-  }
-
-  generateFetchMethod(method: WoRequestMethod) {
-    return <
-      TData extends object,
-      TFetchOptions extends FetchOptions = FetchOptions,
-    >(
-      path: string,
-      options?: TFetchOptions,
-    ) => this.fetchURL<TData>(method, path, options);
-  }
-
-  async getHeaders({
+  };
+  getHeaders = async ({
     headers = {},
     requireAuth = true,
     token,
@@ -172,7 +151,7 @@ export class WoFetchBase {
     requireAuth?: boolean;
     token?: string;
     xhr?: boolean;
-  } = {}): Promise<Headers | Map<string, string>> {
+  } = {}): Promise<Headers | Map<string, string>> => {
     const headersInstance = xhr ? new Map() : new Headers();
     const allHeaders: Record<string, string> = merge(
       {},
@@ -192,6 +171,29 @@ export class WoFetchBase {
       headersInstance.set(key, element);
     }
     return headersInstance;
+  };
+  responseHandler = jsonResponseHandler;
+
+  tokenName = ACCESS_TOKEN_KEY;
+
+  trailingSlash?: boolean;
+
+  constructor({
+    endpoint,
+    ...options
+  }: SetRequired<Partial<WoFetchBase>, "endpoint">) {
+    this.endpoint = endpoint;
+    Object.assign(this, options);
+  }
+
+  generateFetchMethod(method: WoRequestMethod) {
+    return <
+      TData extends object,
+      TFetchOptions extends FetchOptions = FetchOptions,
+    >(
+      path: string,
+      options?: TFetchOptions,
+    ) => this.fetchURL<TData>(method, path, options);
   }
 
   async uploadFileXHR(

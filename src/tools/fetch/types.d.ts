@@ -33,6 +33,7 @@ export interface FetchOptions<TData = WoRequestData, TQuery = WoRequestQuery> {
     response: Response,
     errorHandler: typeof defaultErrorHandler,
   ) => Promise<TData>;
+  signal?: AbortSignal;
   token?: string;
   trailingSlash?: boolean;
 }
